@@ -22,15 +22,20 @@ int main() {
     };
 
     int time_loc = GetShaderLocation(watershader, "time");
-    int light_loc = GetShaderLocation(watershader, "lightDirection");
+    int light_loc = GetShaderLocation(watershader, "lightDir");
+    int cam_loc = GetShaderLocation(watershader, "camPos");
 
-    Vector3 light_direction = Vector3Normalize(Vector3{2, -1, 0});
+    Vector3 light_direction = Vector3Normalize(Vector3{2, 1, 0});
 
     SetShaderValue(watershader, light_loc, &light_direction, SHADER_UNIFORM_VEC3);
 
     while (!WindowShouldClose()) {
+        UpdateCamera(&cam, CAMERA_ORBITAL);
+
         float time = GetTime();
         SetShaderValue(watershader, time_loc, &time, SHADER_UNIFORM_FLOAT);
+
+        SetShaderValue(watershader, cam_loc, &cam.position, SHADER_UNIFORM_VEC3);
 
         BeginDrawing();
 
@@ -38,7 +43,11 @@ int main() {
 
         BeginMode3D(cam);
 
-        DrawModel(waterplane, Vector3{0, 0, 0}, 1, WHITE);
+        DrawModel(waterplane, Vector3{0, 0, 0}, 1, BLUE);
+
+        DrawLine3D(Vector3 {0, 1, 0}, Vector3 { 1, 1, 0}, RED);
+        DrawLine3D(Vector3 {0, 1, 0}, Vector3 { 0, 1, 1}, GREEN);
+        DrawLine3D(Vector3 {0, 1, 0}, Vector3 { 0, 2, 0}, BLUE);
 
         EndMode3D();
 
