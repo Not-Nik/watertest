@@ -24,7 +24,7 @@ int main() {
     int time_loc = GetShaderLocation(watershader, "time");
     int light_loc = GetShaderLocation(watershader, "lightDirection");
 
-    Vector3 light_direction = Vector3Normalize(Vector3{-1, -1, 1});
+    Vector3 light_direction = Vector3Normalize(Vector3{2, -1, 0});
 
     SetShaderValue(watershader, light_loc, &light_direction, SHADER_UNIFORM_VEC3);
 
