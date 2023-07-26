@@ -1,5 +1,7 @@
 #version 330
 
+#define PI 3.1415926538
+
 in vec3 vertexPosition;
 in vec2 vertexTexCoord;
 in vec4 vertexColor;
@@ -7,62 +9,73 @@ in vec3 vertexNormal;
 
 out vec2 fragTexCoord;
 out vec4 fragColor;
-out vec3 fragNormal;
 out vec3 fragPosition;
+out vec3 planePosition;
+
+uniform sampler2D texture0;
 
 uniform mat4 mvp;
 uniform float time;
 
-struct Wave {
-    float frequency, amplitude, phase;
-    vec2 direction;
-};
+uniform int waveCount = 16;
+uniform float wavePeak = 1.f;
+uniform float wavePeakOffset = 1.f;
 
-float GetWaveXY(vec3 wavePosition, Wave wave) {
-    return wave.direction.x * wavePosition.x + wave.direction.y * wavePosition.z;
-}
+uniform float initialFrequency = 1.f;
+uniform float initialAmplitude = 1.f;
+uniform float initialSpeed = 2.f;
 
-float GetWaveOffset(vec3 wavePosition, Wave wave) {
-    float xy = GetWaveXY(wavePosition, wave);
+uniform float frequencyMult = 1.18f;
+uniform float amplitudeMult = 0.82f;
+uniform float speedMult = 1.f;
 
-    return wave.amplitude * sin(xy * wave.frequency + time * wave.phase);
-}
-
-vec2 GetWaveNormal(vec3 wavePosition, Wave wave) {
-    float xy = GetWaveXY(wavePosition, wave);
-
-    vec2 derivative = wave.amplitude * wave.frequency * wave.direction * cos(xy * wave.frequency + time * wave.phase);
-
-    vec3 tangent = normalize(vec3(1, derivative.x, 0));
-    vec3 binormal = normalize(vec3(0, derivative.y, 1));
-
-    return vec2(derivative.x, derivative.y);
-}
-
-void main() {
-    const Wave waves[] = Wave[](
-    Wave(1, 0.3f, 2, vec2(1, 0)),
-    Wave(1, 0.05f, 3, vec2(-1, 1)),
-    Wave(1, 0.1f, 1, vec2(0, -1)),
-    Wave(4, 0.01f, 1, vec2(1, 1))
-    );
-
-    fragTexCoord = vertexTexCoord;
-    fragColor = vertexColor;
-
+vec4 CalculateWaves(vec3 pos) {
     float waveHeight = 0;
     vec2 waveNormal = vec2(0);
 
-    for (int i = 0; i < 4; i++) {
-        Wave wave = waves[i];
+    float frequency = initialFrequency;
+    float amplitude = initialAmplitude;
+    float speed = initialSpeed;
 
-        waveHeight += GetWaveOffset(vertexPosition, wave);
-        waveNormal += GetWaveNormal(vertexPosition, wave);
+    float amplitudeSum = 0;
+
+    for (int i = 0; i < waveCount; i++) {
+        float angle = tan(i);
+        vec2 dir = normalize(vec2(cos(i), sin(i)));
+
+        float x = dot(dir, pos.xz) * frequency + time * speed;
+        float wave = amplitude * exp(wavePeak * sin(x) - wavePeakOffset);
+
+        waveHeight += wave;
+        waveNormal += frequency * dir * wavePeak * wave * cos(x);
+
+        pos.xz += dir * -(wave * cos(x)) * amplitude * 0.5;
+
+        amplitudeSum += amplitude;
+
+        frequency *= frequencyMult;
+        amplitude *= amplitudeMult;
+        speed *= speedMult;
     }
 
-    vec3 wavePosition = vertexPosition + vec3(0, waveHeight, 0);
-    fragNormal = normalize(vec3(-waveNormal.x, 1.0, -waveNormal.y));
+    waveHeight /= amplitudeSum;
+    waveNormal /= amplitudeSum;
 
+    vec3 fragNormal = normalize(vec3(-waveNormal.x, 1.0, -waveNormal.y));
+
+    return vec4(fragNormal, waveHeight);
+}
+
+void main() {
+    vec4 wave = CalculateWaves(vertexPosition);
+    vec3 fragNormal = wave.xyz;
+    float waveHeight = wave.w;
+
+    vec3 wavePosition = vertexPosition + vec3(0, waveHeight, 0);
+
+    planePosition = vertexPosition;
     fragPosition = wavePosition;
+    fragTexCoord = vertexTexCoord;
+    fragColor = vertexColor;
     gl_Position = mvp * vec4(wavePosition, 1.0);
 }
