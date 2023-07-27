@@ -54,7 +54,7 @@ void main() {
 
     float viewDistance = LinearizeDepth(dist);
 
-    float fogFactor = (fogDensity / sqrt(log(2))) * max(0.0f, viewDistance - fogOffset);
+    float fogFactor = (fogDensity / sqrt(log(2.f))) * max(0.0f, viewDistance - fogOffset);
     fogFactor = exp2(-fogFactor * fogFactor);
 
     vec4 fogColour = vec4(0.949, 0.973, 0.969, 1.0);

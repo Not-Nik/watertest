@@ -82,9 +82,7 @@ int main() {
     skyboxbox.materials[0].maps[MATERIAL_MAP_CUBEMAP].texture = cubemap;
 
     auto cam = Camera{
-        .position = Vector3{-28, 5, 0}, .target = Vector3{-25, 5, 0}, .up = Vector3{
-            0, 1, 0
-        }, .fovy = 72.f, .projection = CAMERA_PERSPECTIVE
+        Vector3{-28, 5, 0}, Vector3{-25, 5, 0}, Vector3{0, 1, 0}, 72.f, CAMERA_PERSPECTIVE
     };
 
     int time_loc = GetShaderLocation(watershader, "time");
@@ -193,7 +191,7 @@ int main() {
             rlMatrixMode(RL_MODELVIEW);
             rlLoadIdentity();
 
-            Matrix matView = MatrixLookAt((Vector3) {0, 1, 0}, (Vector3) {0}, (Vector3) {0, 0, 1});
+            Matrix matView = MatrixLookAt(Vector3{0, 1, 0}, Vector3{0}, Vector3{0, 0, 1});
             rlMultMatrixf(MatrixToFloat(matView));
 
             double top = 0.01 * tan(cam.fovy * 0.5 * DEG2RAD);
@@ -203,7 +201,7 @@ int main() {
             SetShaderValueMatrix(postshader, inv_view_loc, MatrixInvert(GetCameraMatrix(cam)));
             SetShaderValueMatrix(postshader, inv_proj_loc, MatrixInvert(projection));
 
-            DrawModel(screenQuad, (Vector3) {0, 0, 0}, 1, WHITE);
+            DrawModel(screenQuad, Vector3{0, 0, 0}, 1, WHITE);
 
             EndMode3D();
 

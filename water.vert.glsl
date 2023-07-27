@@ -38,7 +38,7 @@ vec4 CalculateWaves(vec3 pos) {
     float amplitudeSum = 0;
 
     for (int i = 0; i < waveCount; i++) {
-        float angle = tan(i);
+        float angle = tan(float(i));
         vec2 dir = normalize(vec2(cos(i), sin(i)));
 
         float x = dot(dir, pos.xz) * frequency + time * speed;
