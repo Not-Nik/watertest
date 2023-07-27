@@ -76,15 +76,16 @@ void main() {
     vec3 halfwayDir = normalize(viewDir + lightDir);
 
     float diffuseReflection = max(dot(fragNormal, lightDir), 0);
-    float specularReflection = pow(max(dot(fragNormal, halfwayDir), 0), 64);
+    float specularReflection = pow(max(dot(fragNormal, halfwayDir), 0), 128);
 
     vec3 diffuse = colDiffuse.xyz * diffuseReflection;
     vec3 specular = vec3(0.988, 0.898, 0.439) * specularReflection;
 
-    vec3 ambientColor = vec3(0.145f, 0.192f, 0.5f);
+    vec3 ambientColor = vec3(0.03f, 0.1f, 0.2f);
     vec3 tipColor = vec3(.714, 0.761, 0.698);
 
-    vec3 tip = tipColor * pow(waveHeight, 2);
+    float tipFactor = pow(3 * (-2 * pow(waveHeight, 3) + 3 * pow(waveHeight, 2)), 3) / 30;
+    vec3 tip = tipColor * tipFactor;
 
     finalColor = vec4(ambientColor + diffuse + specular + tip, colDiffuse.a);
 }

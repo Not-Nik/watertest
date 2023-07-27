@@ -102,7 +102,7 @@ int main() {
     int speed_mult_loc = GetShaderLocation(watershader, "speedMult");
 
     Vector3 light_direction = Vector3Normalize(Vector3{2, 1, 0});
-    unsigned int wave_count = 16;
+    unsigned int wave_count = 32;
     float wave_peak = 2;
     float wave_peak_offset = 2.5;
     float initial_frequency = 1;
